@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react'
 import {
+    BuffElem,
 	CursorElem,
 	DamageMarkElem,
 	ElemType,
@@ -12,9 +13,11 @@ import {
 	WarningMarkElem
 } from "../Controller/Timeline";
 import {StaticFn} from "./Common";
-import {ResourceType, WarningType} from "../Game/Common";
+import {BuffName, ResourceType, WarningType} from "../Game/Common";
 // @ts-ignore
 import {skillIconImages} from "./Skills";
+// @ts-ignore
+import {buffIconImages} from "./Buffs";
 import {controller} from "../Controller/Controller";
 import {localize, localizeSkillName} from "./Localization";
 import {setEditingMarkerValues} from "./TimelineMarkerPresets";
@@ -22,6 +25,7 @@ import {getCurrentThemeColors, ThemeColors} from "./ColorTheme";
 import {scrollEditorToFirstSelected} from "./TimelineEditor";
 import {bossIsUntargetable} from "../Controller/DamageStatistics";
 import {updateTimelineView} from "./Timeline";
+import { Buff } from '../Game/Buffs';
 
 export type TimelineRenderingProps = {
 	timelineWidth: number,
@@ -214,6 +218,44 @@ function drawMarkers(
 					["[" + m.time + "] " + m.description],
 					onClick);
 			}
+		}
+	});
+}
+
+function drawBuffs(	countdown: number,
+	scale: number,
+	buffTracksBottomY: number, // bottom Y of track 0
+	timelineOrigin: number,
+	buffBins: Map<number, BuffElem[]>,
+) {
+    buffBins.forEach((elems, track)=>{
+		let top = buffTracksBottomY - (track + 1) * c_trackHeight;
+		for (let i = 0; i < elems.length; i++) {
+			let m = elems[i];
+
+			let left = timelineOrigin + StaticFn.positionFromTimeAndScale(m.time + countdown, scale);
+			let onClick = ()=>{
+				// let success = controller.timeline.deleteMarker(m);
+				// console.assert(success);
+				// controller.updateStats();
+				// setEditingMarkerValues(m);
+			};
+            
+            let markerWidth = StaticFn.positionFromTimeAndScale(m.duration , scale);
+            
+            let img = buffIconImages.get(m.description);
+            g_ctx.drawImage(img, left, top, c_trackHeight, c_trackHeight);
+            
+            g_ctx.fillStyle = m.color + g_colors.timeline.markerAlpha;
+            g_ctx.fillRect(left + c_trackHeight, top, markerWidth, c_trackHeight);
+            g_ctx.fillStyle = g_colors.emphasis;
+            g_ctx.fillText(m.description, left + (c_trackHeight * 1.5), top + 10);
+            
+            let timeStr = m.time + " - " + parseFloat((m.time + m.duration).toFixed(3));
+            testInteraction(
+                {x: left, y: top, w: Math.max(markerWidth, c_trackHeight), h: c_trackHeight},
+                ["[" + timeStr + "] " + m.description],
+                onClick);
 		}
 	});
 }
@@ -606,6 +648,60 @@ function drawMarkerTracks(originX: number, originY: number) : number {
 
 }
 
+function drawBuffTracks(originX: number, originY: number) {
+    let proofOfConceptCollection: BuffElem[] = [];
+
+    let mugBuff = new Buff(BuffName.Mug);
+    let mug: BuffElem = {
+        type: ElemType.Buff,
+        description: mugBuff.name.toString(),
+        duration: mugBuff.info.duration,
+        color: mugBuff.info.color,
+        track: 0,
+        time: 7,
+    }
+
+    let stepBuff = new Buff(BuffName.TechnicalStep);
+    let step: BuffElem = {
+        type: ElemType.Buff,
+        description: stepBuff.name.toString(),
+        duration: stepBuff.info.duration,
+        color: stepBuff.info.color,
+        track: 1,
+        time: 8,
+    }
+
+    proofOfConceptCollection.push(mug);
+    proofOfConceptCollection.push(step);
+
+    let buffBins = new Map<number, BuffElem[]>();
+    proofOfConceptCollection.forEach(marker => {
+        let buffBin = buffBins.get(marker.track);
+        if (buffBin === undefined) buffBin = [];
+        buffBin.push(marker);
+        buffBins.set(marker.track, buffBin);
+    });
+
+    // tracks background
+    g_ctx.beginPath();
+    let numTracks = 0;
+    for (let k of buffBins.keys()) {
+        numTracks = Math.max(numTracks, k + 1);
+    }
+    let buffTracksBottomY = originY + numTracks * c_trackHeight;
+    g_ctx.fillStyle = g_colors.timeline.tracks;
+    for (let i = 0; i < numTracks; i += 2) {
+        let top = buffTracksBottomY - (i + 1) * c_trackHeight;
+        g_ctx.rect(0, top, g_visibleWidth, c_trackHeight);
+    }
+    g_ctx.fill();
+
+    // timeline markers
+    drawBuffs(g_renderingProps.countdown, g_renderingProps.scale, buffTracksBottomY, originX, buffBins);
+
+    return numTracks * c_trackHeight;
+}
+
 function drawTimelines(originX:  number, originY: number) : number {
 
 	let sharedElemBins = new Map<ElemType, TimelineElem[]>();
@@ -767,6 +863,8 @@ function drawEverything() {
 
 	currentHeight += drawMarkerTracks(timelineOrigin, currentHeight);
 
+    currentHeight += drawBuffTracks(timelineOrigin, currentHeight);
+
 	currentHeight += drawTimelines(timelineOrigin, currentHeight);
 
 	// interactive layer
@@ -896,3 +994,4 @@ export function TimelineCanvas(props: {
 		cursor: readback_pointerMouse ? "pointer" : "default",
 	}}/>;
 }
+

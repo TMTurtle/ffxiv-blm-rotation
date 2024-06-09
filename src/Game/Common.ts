@@ -64,6 +64,11 @@ export const enum SkillReadyStatus {
 	BuffNoLongerAvailable = "buff no longer available"
 }
 
+export const enum BuffName {
+    TechnicalStep = "Technical Step",
+    Mug = "Mug",
+}
+
 export const enum ResourceType {
 	// job resources
 	Mana = "Mana", // [0, 10000]
