@@ -1,21 +1,20 @@
-import { MarkerColor } from "../Controller/Timeline";
-import { BuffName } from "./Common";
+import { BuffName, MarkerColor } from "./Common";
 
 export class BuffInfo {
 	readonly name: BuffName;
 	readonly duration: number;
-    readonly color: MarkerColor;
+	readonly color: MarkerColor;
 
-    constructor(name: BuffName, duration: number, color: MarkerColor) {
-        this.name = name;
-        this.duration = duration;
-        this.color = color;
-    }
+	constructor(name: BuffName, duration: number, color: MarkerColor) {
+		this.name = name;
+		this.duration = duration;
+		this.color = color;
+	}
 }
 
 const buffInfos = [
-    new BuffInfo(BuffName.TechnicalStep, 15, MarkerColor.Red),
-    new BuffInfo(BuffName.Mug, 20, MarkerColor.Yellow)
+	new BuffInfo(BuffName.TechnicalStep, 15, MarkerColor.Red),
+	new BuffInfo(BuffName.Mug, 20, MarkerColor.Yellow)
 ];
 
 const buffInfosMap: Map<BuffName, BuffInfo> = new Map();
@@ -36,4 +35,12 @@ export class Buff {
 		}
 		this.info = info;
 	}
+
+	static buildFromString(name: string): Buff {
+		return new Buff(BuffName[name as keyof typeof BuffName]);
+	}
+}
+
+export var buffConstants = {
+	buffInfos
 }
