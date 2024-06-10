@@ -144,12 +144,19 @@ export class TimelineMarkerPresets extends React.Component {
 					nextMarkerDescription: marker.description,
 					nextMarkerShowText: marker.showText,
 				});
-			} else {
+			} else if (marker.markerType === MarkerType.Untargetable) {
 				this.setState({
 					nextMarkerType: marker.markerType,
 					nextMarkerTime: marker.time.toString(),
 					nextMarkerDuration: marker.duration.toString(),
 				});
+			} else {
+				this.setState({
+					nextMarkerType: marker.markerType,
+					nextMarkerTrack: marker.track.toString(),
+					nextMarkerTime: marker.time.toString(),
+					nextMarkerBuff: marker.description as BuffName
+				})
 			}
 		}).bind(this);
 		this.onSaveFilenameChange = ((evt: ChangeEvent<{value: string}>)=>{
