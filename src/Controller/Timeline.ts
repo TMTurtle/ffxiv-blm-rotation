@@ -182,7 +182,7 @@ export class Timeline {
 		this.#allMarkers.push(marker);
 		if (marker.markerType === MarkerType.Untargetable) {
 			this.#untargetableMarkers.push(marker);
-		} else if (marker.markerType == MarkerType.Buff) {
+		} else if (marker.markerType === MarkerType.Buff) {
 			this.#buffMarkers.push(marker);
 		}
 		this.drawElements();

@@ -12,7 +12,7 @@ import {
 	WarningMarkElem
 } from "../Controller/Timeline";
 import {StaticFn} from "./Common";
-import {BuffName, ResourceType, WarningType} from "../Game/Common";
+import {ResourceType, WarningType} from "../Game/Common";
 // @ts-ignore
 import {skillIconImages} from "./Skills";
 // @ts-ignore
@@ -240,22 +240,22 @@ function drawBuffs(	countdown: number,
 				controller.updateStats();
 				setEditingMarkerValues(m);
 			};
-            
-            let markerWidth = StaticFn.positionFromTimeAndScale(m.duration , scale);
-            
-            let img = buffIconImages.get(m.description);
+			
+			let markerWidth = StaticFn.positionFromTimeAndScale(m.duration , scale);
+			
+			let img = buffIconImages.get(m.description);
 			if (img) g_ctx.drawImage(img, left, top, c_trackHeight, c_trackHeight);
-            
-            g_ctx.fillStyle = m.color + g_colors.timeline.markerAlpha;
-            g_ctx.fillRect(left + c_trackHeight, top, markerWidth, c_trackHeight);
-            g_ctx.fillStyle = g_colors.emphasis;
-            g_ctx.fillText(m.description, left + (c_trackHeight * 1.5), top + 10);
-            
-            let timeStr = m.time + " - " + parseFloat((m.time + m.duration).toFixed(3));
-            testInteraction(
-                {x: left, y: top, w: Math.max(markerWidth, c_trackHeight), h: c_trackHeight},
-                ["[" + timeStr + "] " + m.description],
-                onClick);
+			
+			g_ctx.fillStyle = m.color + g_colors.timeline.markerAlpha;
+			g_ctx.fillRect(left + c_trackHeight, top, markerWidth, c_trackHeight);
+			g_ctx.fillStyle = g_colors.emphasis;
+			g_ctx.fillText(m.description, left + (c_trackHeight * 1.5), top + 10);
+			
+			let timeStr = m.time + " - " + parseFloat((m.time + m.duration).toFixed(3));
+			testInteraction(
+				{x: left, y: top, w: Math.max(markerWidth, c_trackHeight), h: c_trackHeight},
+				["[" + timeStr + "] " + m.description],
+				onClick);
 		}
 	});
 }
@@ -346,8 +346,11 @@ function drawDamageMarks(
 		if (untargetable) {
 			info = (0).toFixed(2) + " (" + dm.source + ")";
 		} else {
-			info = dm.potency.getAmount({tincturePotencyMultiplier: g_renderingProps.tincturePotencyMultiplier}).toFixed(2) + " (" + dm.source + ")";
+			const withoutBuffs = dm.potency.getAmount({tincturePotencyMultiplier: g_renderingProps.tincturePotencyMultiplier, includePartyBuffs: false});
+			const withBuffs = dm.potency.getAmount({tincturePotencyMultiplier: g_renderingProps.tincturePotencyMultiplier, includePartyBuffs: true});
+			info = withBuffs.toFixed(2) + " (" + dm.source + ")";
 			if (pot) info += " (" + localize({en: "pot", zh: "爆发药"}) + ")";
+			if (withoutBuffs !== withBuffs) info += " (" + localize({en: "party", zh: "TODO"}) + ")";
 		}
 
 		testInteraction(
@@ -494,14 +497,22 @@ function drawSkills(
 		let description = localizeSkillName(icon.elem.skillName) + "@" + (icon.elem.displayTime).toFixed(2);
 		if (node.hasBuff(ResourceType.LeyLines)) description += localize({en: " (LL)", zh: " (黑魔纹)"});
 		if (node.hasBuff(ResourceType.Tincture)) description += localize({en: " (pot)", zh: "(爆发药)"});
+
+		const withoutBuffs = node.getPotency({
+			tincturePotencyMultiplier: g_renderingProps.tincturePotencyMultiplier, 
+			includePartyBuffs: false, 
+			untargetable: bossIsUntargetable}).applied;
+		const withBuffs = node.getPotency({
+			tincturePotencyMultiplier: g_renderingProps.tincturePotencyMultiplier, 
+			includePartyBuffs: true, 
+			untargetable: bossIsUntargetable}).applied;
+
+		if (withoutBuffs !== withBuffs) description += localize({en: " (party)", zh: "(TODO)"});
+
 		let lines = [description];
-		let potency = node.getPotency({
-			tincturePotencyMultiplier: g_renderingProps.tincturePotencyMultiplier,
-			untargetable: bossIsUntargetable
-		}).applied;
 		// 2. potency
 		if (node.getPotencies().length > 0) {
-			lines.push(localize({en: "potency: ", zh: "威力："}) + potency.toFixed(2));
+			lines.push(localize({en: "potency: ", zh: "威力："}) + withBuffs.toFixed(2));
 		}
 		// 3. duration
 		let lockDuration = 0;

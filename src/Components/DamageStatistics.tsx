@@ -22,7 +22,8 @@ export type DamageStatsMainTableEntry = {
 	totalPotencyWithoutPot: number,
 	showPotency: boolean,
 	potPotency: number,
-	potCount: number
+	potCount: number,
+	partyBuffPotency: number,
 };
 
 export type DamageStatsT3TableEntry = {
@@ -38,7 +39,8 @@ export type DamageStatsT3TableEntry = {
 	totalNumTicks: number,
 	numHitTicks: number,
 	potencyWithoutPot: number,
-	potPotency: number
+	potPotency: number,
+	partyBuffPotency: number,
 }
 
 export type SelectedStatisticsData = {
@@ -70,7 +72,8 @@ export type DamageStatisticsData = {
 	mainTable: DamageStatsMainTableEntry[],
 	mainTableSummary: {
 		totalPotencyWithoutPot: number,
-		totalPotPotency: number
+		totalPotPotency: number,
+		totalPartyBuffPotency: number,
 	},
 	t3Table: DamageStatsT3TableEntry[],
 	t3TableSummary: {
@@ -83,6 +86,7 @@ export type DamageStatisticsData = {
 		theoreticalMaxTicks: number,
 		totalPotencyWithoutPot: number,
 		totalPotPotency: number,
+		totalPartyBuffPotency: number,
 	},
 	historical: boolean,
 }
@@ -189,7 +193,11 @@ export class DamageStatistics extends React.Component {
 		lastDamageApplicationTime: 0,
 		gcdSkills: {applied: 0, pending: 0},
 		mainTable: [],
-		mainTableSummary: {totalPotencyWithoutPot: 0, totalPotPotency: 0},
+		mainTableSummary: {
+			totalPotencyWithoutPot: 0, 
+			totalPotPotency: 0,
+			totalPartyBuffPotency: 0,
+		},
 		t3Table: [],
 		t3TableSummary: {
 			cumulativeGap: 0,
@@ -200,7 +208,8 @@ export class DamageStatistics extends React.Component {
 			dotCoverageTimeFraction: 0,
 			theoreticalMaxTicks: 0,
 			totalPotencyWithoutPot: 0,
-			totalPotPotency: 0
+			totalPotPotency: 0,
+			totalPartyBuffPotency: 0,
 		},
 		historical: false,
 	};
@@ -396,6 +405,8 @@ export class DamageStatistics extends React.Component {
 					{props.row.potPotency > 0 ? <span style={{
 						color: includeInStats ? colors.timeline.potCover : colors.bgHighContrast
 					}}> +{props.row.potPotency.toFixed(2)}({localize({en: "pot", zh: "爆发药"})})({props.row.potCount})</span> : undefined}
+					{props.row.partyBuffPotency > 0 ? 
+						<span style={{color: colors.accent}}> +{props.row.partyBuffPotency.toFixed(2)}({localize({en: "party"})})</span> : undefined}
 				</span>
 			}
 			let rowStyle: CSSProperties = {
@@ -476,6 +487,8 @@ export class DamageStatistics extends React.Component {
 				{props.row.potPotency > 0 ? <span style={{
 					color: colors.timeline.potCover
 				}}> +{props.row.potPotency.toFixed(2)}({localize({en: "pot", zh: "爆发药"})})</span> : undefined}
+				{props.row.partyBuffPotency > 0 ? 
+					<span style={{color: colors.accent}}> +{props.row.partyBuffPotency.toFixed(2)}({localize({en: "party"})})</span> : undefined}
 			</span>
 
 			return <div key={props.key} style={{
@@ -552,6 +565,9 @@ export class DamageStatistics extends React.Component {
 								en: " (pot +" + this.data.tinctureBuffPercentage + "%)",
 								zh: "(爆发药 +" + this.data.tinctureBuffPercentage + "%)"
 							})}</span> : undefined}
+
+					{this.data.mainTableSummary.totalPartyBuffPotency > 0 ? 
+						<span style={{color: colors.accent}}> +{this.data.mainTableSummary.totalPartyBuffPotency.toFixed(2)}({localize({en: "party"})})</span> : undefined}
 				</span></div>
 				</div>
 			</div>
@@ -611,6 +627,9 @@ export class DamageStatistics extends React.Component {
 								en: " (pot +" + this.data.tinctureBuffPercentage + "%)",
 								zh: "(爆发药 +" + this.data.tinctureBuffPercentage + "%)"
 							})}</span> : undefined}
+
+						{this.data.t3TableSummary.totalPartyBuffPotency > 0 ? 
+							<span style={{color: colors.accent}}> +{this.data.t3TableSummary.totalPartyBuffPotency.toFixed(2)}({localize({en: "party"})})</span> : undefined}
 					</div>
 				</div>
 			</div>
