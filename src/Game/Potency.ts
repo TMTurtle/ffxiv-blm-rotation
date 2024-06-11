@@ -69,7 +69,7 @@ export function getPotencyModifiersFromResourceState(resources: ResourceState, a
 
 	const buffMarkers = controller.timeline.getBuffMarkers();
 	buffMarkers.filter(marker => {
-		const adjustedTime = resources.game.time - resources.game.config.countdown;
+		const adjustedTime = resources.game.getDisplayTime();
 		return marker.time <= adjustedTime && (marker.time + marker.duration) >= adjustedTime;
 	}).forEach(marker => {
 		const buff = new Buff(marker.description as BuffName);
