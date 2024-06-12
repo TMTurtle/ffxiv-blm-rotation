@@ -84,15 +84,14 @@ export class ActionNode {
 		return hasPartyBuff;
 	}
 
-	getPartyBuffDescriptions() {
-		let buffDescriptions: ContentNode[] = [];
+	getPartyBuffs() {
+		let buffList = [];
 		for (let buffType of this.#capturedBuffs) {
 			if (buffType !== BuffType.LeyLines && buffType !== BuffType.Tincture) {
-				const buff = new Buff(buffType);
-				buffDescriptions = buffDescriptions.concat(buff.info.shortName);
+				buffList.push(buffType);
 			}
 		}
-		return buffDescriptions;
+		return buffList;
 	}
 
 	resolveAll(displayTime: number) {

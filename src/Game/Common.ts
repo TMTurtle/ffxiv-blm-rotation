@@ -82,8 +82,10 @@ export enum BuffType {
 	LeyLines = "Ley Lines",
 	Tincture = "Tincture",
 
-	TechnicalStep = "Technical Step",
+	Brotherhood = "Brotherhood",
+	DragonSight = "Dragon Sight", 
 	Mug = "Mug",
+	TechnicalStep = "Technical Step",
 }
 
 export const enum ResourceType {
