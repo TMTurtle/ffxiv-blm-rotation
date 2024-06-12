@@ -1,3 +1,5 @@
+import { MdDescription } from "react-icons/md";
+
 export const Debug = {
 	epsilon: 1e-6,
 	disableManaTicks: false,
@@ -76,7 +78,10 @@ export const enum SkillReadyStatus {
 	BuffNoLongerAvailable = "buff no longer available"
 }
 
-export enum BuffName {
+export enum BuffType {
+	LeyLines = "Ley Lines",
+	Tincture = "Tincture",
+
 	TechnicalStep = "Technical Step",
 	Mug = "Mug",
 }

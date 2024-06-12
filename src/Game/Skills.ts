@@ -1,4 +1,4 @@
-import {Aspect, ProcMode, ResourceType, SkillName} from './Common'
+import {Aspect, BuffType, ProcMode, ResourceType, SkillName} from './Common'
 // @ts-ignore
 import {controller} from "../Controller/Controller";
 import {DoTBuff, EventTag, Resource} from "./Resources";
@@ -366,7 +366,7 @@ export class SkillsList extends Map<SkillName, Skill> {
 
 					// tincture
 					if (game.resources.get(ResourceType.Tincture).available(1)) {
-						node.addBuff(ResourceType.Tincture);
+						node.addBuff(BuffType.Tincture);
 					}
 
 					game.useInstantSkill({
@@ -401,7 +401,7 @@ export class SkillsList extends Map<SkillName, Skill> {
 
 						// tincture
 						if (game.resources.get(ResourceType.Tincture).available(1)) {
-							node.addBuff(ResourceType.Tincture);
+							node.addBuff(BuffType.Tincture);
 						}
 						// if there's a sharpcast stack, consume it and gain (a potentially new) proc
 						let sc = game.resources.get(ResourceType.Sharpcast);
