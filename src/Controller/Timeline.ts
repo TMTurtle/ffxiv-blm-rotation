@@ -9,6 +9,7 @@ import {updateMarkers_TimelineMarkerPresets} from "../Components/TimelineMarkerP
 import {updateSkillSequencePresetsView} from "../Components/SkillSequencePresets";
 import {refreshTimelineEditor} from "../Components/TimelineEditor";
 import {Potency} from "../Game/Potency";
+import {Buff, BuffInfo} from "../Game/Buffs";
 
 export const MAX_TIMELINE_SLOTS = 4;
 
@@ -20,7 +21,8 @@ export const enum ElemType {
 	MPTickMark = "MPTickMark",
 	Skill = "Skill",
 	Marker = "Marker",
-	WarningMark = "WarningMark"
+	WarningMark = "WarningMark",
+    Buff = "Buff"
 }
 
 export const UntargetableMarkerTrack = -1;
@@ -99,6 +101,14 @@ export type MarkerElem = TimelineElemBase & {
 	track: number;
 	showText: boolean;
 	description: string;
+}
+
+export type BuffElem = TimelineElemBase & {
+    type: ElemType.Buff;
+    duration: number;
+    color: MarkerColor
+    track: number;
+    description: string;
 }
 
 export type SerializedMarker = TimelineElemBase & {

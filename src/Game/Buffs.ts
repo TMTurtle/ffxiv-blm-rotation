@@ -1,0 +1,39 @@
+import { MarkerColor } from "../Controller/Timeline";
+import { BuffName } from "./Common";
+
+export class BuffInfo {
+	readonly name: BuffName;
+	readonly duration: number;
+    readonly color: MarkerColor;
+
+    constructor(name: BuffName, duration: number, color: MarkerColor) {
+        this.name = name;
+        this.duration = duration;
+        this.color = color;
+    }
+}
+
+const buffInfos = [
+    new BuffInfo(BuffName.TechnicalStep, 15, MarkerColor.Red),
+    new BuffInfo(BuffName.Mug, 20, MarkerColor.Yellow)
+];
+
+const buffInfosMap: Map<BuffName, BuffInfo> = new Map();
+buffInfos.forEach(info=>{
+	buffInfosMap.set(info.name, info);
+});
+
+export class Buff {
+	readonly name: BuffName;
+	info: BuffInfo;
+
+	constructor(name: BuffName) {
+		this.name = name;
+		let info = buffInfosMap.get(name);
+		if (!info) {
+			info = buffInfos[0];
+			console.error("Buff info not found!");
+		}
+		this.info = info;
+	}
+}
