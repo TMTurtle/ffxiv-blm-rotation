@@ -235,16 +235,16 @@ function drawBuffs(	countdown: number,
 
 			let left = timelineOrigin + StaticFn.positionFromTimeAndScale(m.time + countdown, scale);
 			let onClick = ()=>{
-				// let success = controller.timeline.deleteMarker(m);
-				// console.assert(success);
-				// controller.updateStats();
-				// setEditingMarkerValues(m);
+				let success = controller.timeline.deleteMarker(m);
+				console.assert(success);
+				controller.updateStats();
+				setEditingMarkerValues(m);
 			};
             
             let markerWidth = StaticFn.positionFromTimeAndScale(m.duration , scale);
             
             let img = buffIconImages.get(m.description);
-            g_ctx.drawImage(img, left, top, c_trackHeight, c_trackHeight);
+			if (img) g_ctx.drawImage(img, left, top, c_trackHeight, c_trackHeight);
             
             g_ctx.fillStyle = m.color + g_colors.timeline.markerAlpha;
             g_ctx.fillRect(left + c_trackHeight, top, markerWidth, c_trackHeight);

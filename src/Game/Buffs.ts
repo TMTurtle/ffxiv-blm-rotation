@@ -35,10 +35,6 @@ export class Buff {
 		}
 		this.info = info;
 	}
-
-	static buildFromString(name: string): Buff {
-		return new Buff(BuffName[name as keyof typeof BuffName]);
-	}
 }
 
 export var buffConstants = {
