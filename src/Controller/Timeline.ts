@@ -2,14 +2,13 @@
 import {updateTimelineView} from "../Components/Timeline";
 // @ts-ignore
 import {controller} from "./Controller";
-import {Debug, ResourceType, SkillName, WarningType} from "../Game/Common";
+import {Debug, MarkerColor, ResourceType, SkillName, WarningType} from "../Game/Common";
 import {ActionNode, ActionType, Record} from "./Record";
 import {FileType, getCachedValue, removeCachedValue, setCachedValue} from "./Common";
 import {updateMarkers_TimelineMarkerPresets} from "../Components/TimelineMarkerPresets";
 import {updateSkillSequencePresetsView} from "../Components/SkillSequencePresets";
 import {refreshTimelineEditor} from "../Components/TimelineEditor";
 import {Potency} from "../Game/Potency";
-import {Buff, BuffInfo} from "../Game/Buffs";
 
 export const MAX_TIMELINE_SLOTS = 4;
 
@@ -29,19 +28,8 @@ export const UntargetableMarkerTrack = -1;
 
 export const enum MarkerType {
 	Info = "Info",
-	Untargetable = "Untargetable"
-}
-
-export const enum MarkerColor {
-	Red = "#f64141",
-	Orange = "#e89b5f",
-	Yellow = "#ffd535",
-	Green = "#50c53d",
-	Cyan = "#53e5e5",
-	Blue = "#217ff5",
-	Purple = "#9755ef",
-	Pink = "#ee79ee",
-	Grey = "#6f6f6f"
+	Untargetable = "Untargetable",
+	Buff = "Buff"
 }
 
 type TimelineElemBase = {
@@ -103,14 +91,6 @@ export type MarkerElem = TimelineElemBase & {
 	description: string;
 }
 
-export type BuffElem = TimelineElemBase & {
-    type: ElemType.Buff;
-    duration: number;
-    color: MarkerColor
-    track: number;
-    description: string;
-}
-
 export type SerializedMarker = TimelineElemBase & {
 	markerType: MarkerType;
 	duration: number;
@@ -148,6 +128,7 @@ export class Timeline {
 	activeSlotIndex: number;
 	#allMarkers: MarkerElem[];
 	#untargetableMarkers: MarkerElem[];
+	#buffMarkers: MarkerElem[];
 
 	constructor() {
 		this.scale = 0.25;
@@ -158,6 +139,7 @@ export class Timeline {
 		this.activeSlotIndex = -1;
 		this.#allMarkers = [];
 		this.#untargetableMarkers = [];
+		this.#buffMarkers = [];
 		this.#load();
 	}
 
@@ -179,6 +161,8 @@ export class Timeline {
 
 	getUntargetableMarkers() { return this.#untargetableMarkers; }
 
+	getBuffMarkers() { return this.#buffMarkers; }
+
 	#markersAreEqual(m1: MarkerElem, m2: MarkerElem) : boolean {
 		let almostEq = function(a: number, b: number) {
 			return Math.abs(a - b) < Debug.epsilon;
@@ -199,6 +183,8 @@ export class Timeline {
 		this.#allMarkers.push(marker);
 		if (marker.markerType === MarkerType.Untargetable) {
 			this.#untargetableMarkers.push(marker);
+		} else if (marker.markerType == MarkerType.Buff) {
+			this.#buffMarkers.push(marker);
 		}
 		this.drawElements();
 		this.#save();
@@ -215,6 +201,7 @@ export class Timeline {
 			}
 		}
 		this.#recreateUntargetableList();
+		this.#recreateBuffList();
 		return deleted;
 	}
 
@@ -222,6 +209,13 @@ export class Timeline {
 		this.#untargetableMarkers = [];
 		this.#allMarkers.forEach(m => {
 			if (m.markerType === MarkerType.Untargetable) this.#untargetableMarkers.push(m);
+		})
+	}
+
+	#recreateBuffList() {
+		this.#buffMarkers = [];
+		this.#allMarkers.forEach(m => {
+			if (m.markerType === MarkerType.Buff) this.#buffMarkers.push(m);
 		})
 	}
 
@@ -237,6 +231,7 @@ export class Timeline {
 			}
 		}
 		this.#recreateUntargetableList();
+		this.#recreateBuffList();
 		this.#save();
 		return count;
 	}
@@ -257,6 +252,7 @@ export class Timeline {
 		});
 		this.#allMarkers = this.#allMarkers.concat(newMarkers);
 		this.#recreateUntargetableList();
+		this.#recreateBuffList();
 		this.#save();
 	}
 
@@ -281,6 +277,7 @@ export class Timeline {
 	deleteAllMarkers() {
 		this.#allMarkers = [];
 		this.#untargetableMarkers = [];
+		this.#buffMarkers = [];
 		this.drawElements();
 		this.#save();
 	}

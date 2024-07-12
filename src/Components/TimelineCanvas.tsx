@@ -1,11 +1,10 @@
 import React, {useEffect, useRef, useState} from 'react'
 import {
-    BuffElem,
 	CursorElem,
 	DamageMarkElem,
 	ElemType,
 	LucidMarkElem,
-	MarkerElem, MAX_TIMELINE_SLOTS,
+	MarkerElem, MarkerType, MAX_TIMELINE_SLOTS,
 	MPTickMarkElem, SharedTimelineElem,
 	SkillElem, SlotTimelineElem,
 	TimelineElem, UntargetableMarkerTrack,
@@ -25,7 +24,6 @@ import {getCurrentThemeColors, ThemeColors} from "./ColorTheme";
 import {scrollEditorToFirstSelected} from "./TimelineEditor";
 import {bossIsUntargetable} from "../Controller/DamageStatistics";
 import {updateTimelineView} from "./Timeline";
-import { Buff } from '../Game/Buffs';
 
 export type TimelineRenderingProps = {
 	timelineWidth: number,
@@ -36,6 +34,7 @@ export type TimelineRenderingProps = {
 	untargetableMask: boolean,
 	allMarkers: MarkerElem[],
 	untargetableMarkers: MarkerElem[],
+	buffMarkers: MarkerElem[],
 	sharedElements: SharedTimelineElem[],
 	slotElements: SlotTimelineElem[][],
 	activeSlotIndex: number,
@@ -77,6 +76,7 @@ let g_renderingProps: TimelineRenderingProps = {
 	tincturePotencyMultiplier: 1,
 	allMarkers: [],
 	untargetableMarkers: [],
+	buffMarkers: [],
 	untargetableMask: true,
 	sharedElements: [],
 	slotElements: [],
@@ -226,7 +226,7 @@ function drawBuffs(	countdown: number,
 	scale: number,
 	buffTracksBottomY: number, // bottom Y of track 0
 	timelineOrigin: number,
-	buffBins: Map<number, BuffElem[]>,
+	buffBins: Map<number, MarkerElem[]>,
 ) {
     buffBins.forEach((elems, track)=>{
 		let top = buffTracksBottomY - (track + 1) * c_trackHeight;
@@ -618,11 +618,14 @@ function drawMarkerTracks(originX: number, originY: number) : number {
 
 	// make trackbins
 	let trackBins = new Map<number, MarkerElem[]>();
-	g_renderingProps.allMarkers.forEach(marker => {
-		let trackBin = trackBins.get(marker.track);
-		if (trackBin === undefined) trackBin = [];
-		trackBin.push(marker);
-		trackBins.set(marker.track, trackBin);
+
+	g_renderingProps.allMarkers
+		.filter(marker => marker.markerType !== MarkerType.Buff)
+		.forEach(marker => {
+			let trackBin = trackBins.get(marker.track);
+			if (trackBin === undefined) trackBin = [];
+			trackBin.push(marker);
+			trackBins.set(marker.track, trackBin);
 	});
 
 	// tracks background
@@ -650,38 +653,13 @@ function drawMarkerTracks(originX: number, originY: number) : number {
 }
 
 function drawBuffTracks(originX: number, originY: number) {
-    let proofOfConceptCollection: BuffElem[] = [];
-
-    let mugBuff = new Buff(BuffName.Mug);
-    let mug: BuffElem = {
-        type: ElemType.Buff,
-        description: mugBuff.name.toString(),
-        duration: mugBuff.info.duration,
-        color: mugBuff.info.color,
-        track: 0,
-        time: 7,
-    }
-
-    let stepBuff = new Buff(BuffName.TechnicalStep);
-    let step: BuffElem = {
-        type: ElemType.Buff,
-        description: stepBuff.name.toString(),
-        duration: stepBuff.info.duration,
-        color: stepBuff.info.color,
-        track: 1,
-        time: 8,
-    }
-
-    proofOfConceptCollection.push(mug);
-    proofOfConceptCollection.push(step);
-
-    let buffBins = new Map<number, BuffElem[]>();
-    proofOfConceptCollection.forEach(marker => {
-        let buffBin = buffBins.get(marker.track);
-        if (buffBin === undefined) buffBin = [];
-        buffBin.push(marker);
-        buffBins.set(marker.track, buffBin);
-    });
+	let buffBins = new Map<number, MarkerElem[]>();
+	g_renderingProps.buffMarkers.forEach(marker => {
+		let buffBin = buffBins.get(marker.track);
+		if (buffBin === undefined) buffBin = [];
+		buffBin.push(marker);
+		buffBins.set(marker.track, buffBin);
+	});
 
     // tracks background
     g_ctx.beginPath();
