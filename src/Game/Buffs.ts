@@ -1,17 +1,13 @@
-import { ContentNode } from "../Components/Common";
-import { localize } from "../Components/Localization";
 import { BuffType, MarkerColor } from "./Common";
 
 export class BuffInfo {
 	readonly name: BuffType;
-	readonly shortName: ContentNode;
 	readonly duration: number;
 	readonly potencyFactor: number;
 	readonly color: MarkerColor;
 
-	constructor(name: BuffType, shortName: ContentNode, duration: number, potencyFactor: number, color: MarkerColor) {
+	constructor(name: BuffType, duration: number, potencyFactor: number, color: MarkerColor) {
 		this.name = name;
-		this.shortName = shortName;
 		this.duration = duration;
 		this.potencyFactor = potencyFactor;
 		this.color = color;
@@ -19,8 +15,10 @@ export class BuffInfo {
 }
 
 const buffInfos = [
-	new BuffInfo(BuffType.TechnicalStep, localize({en: "tech", zh: "todo"}), 15, 1.05, MarkerColor.Red),
-	new BuffInfo(BuffType.Mug, localize({en: "mug", zh: "todo"}), 20, 1.05, MarkerColor.Yellow)
+	new BuffInfo(BuffType.Brotherhood, 20, 1.05, MarkerColor.Orange),
+	new BuffInfo(BuffType.DragonSight, 20, 1.05, MarkerColor.Red),
+	new BuffInfo(BuffType.Mug, 20, 1.05, MarkerColor.Yellow),
+	new BuffInfo(BuffType.TechnicalStep, 15, 1.05, MarkerColor.Blue),
 ];
 
 const buffInfosMap: Map<BuffType, BuffInfo> = new Map();

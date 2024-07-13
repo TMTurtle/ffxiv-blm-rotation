@@ -10,7 +10,7 @@ export const enum PotencyModifierType {
 
 export type PotencyModifier = {
 	source: PotencyModifierType,
-	description?: ContentNode,
+	buffType?: BuffType,
 	factor: number
 }
 
@@ -75,7 +75,7 @@ export function getPotencyModifiersFromResourceState(resources: ResourceState, a
 		return marker.time <= adjustedTime && (marker.time + marker.duration) >= adjustedTime;
 	}).forEach(marker => {
 		const buff = new Buff(marker.description as BuffType);
-		mods.push({source: PotencyModifierType.PARTY, description: buff.info.shortName, factor: buff.info.potencyFactor})
+		mods.push({source: PotencyModifierType.PARTY, buffType: buff.name, factor: buff.info.potencyFactor})
 	})
 	
 	return mods;
@@ -122,10 +122,10 @@ export class Potency {
 		return potency;
 	}
 
-	getPartyBuffDescriptions() {
+	getPartyBuffs() {
 		return this.modifiers
 			.filter(m => m.source === PotencyModifierType.PARTY)
-			.map(m => m.description);
+			.map(m => m.buffType);
 	}
 
 	resolve(displayTime: number) {
