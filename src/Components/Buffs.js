@@ -2,13 +2,23 @@ import {BuffType} from "../Game/Common";
 import {updateTimelineView} from "./Timeline";
 
 export let displayedSkills = [
+	BuffType.ArcaneCircle,
+	BuffType.ArmysPaeon,
+	BuffType.BattleLitany,
+	BuffType.BattleVoice,
 	BuffType.Brotherhood,
-	BuffType.DragonSight,
+	BuffType.Card_TheBalance,
+	BuffType.Card_TheSpear,
+	BuffType.ChainStratagem,
+	BuffType.Devilment,
+	BuffType.Embolden,
+	BuffType.MagesBallad,
 	BuffType.Mug,
 	BuffType.RadiantFinale1,
 	BuffType.RadiantFinale2,
 	BuffType.RadiantFinale3,
-    BuffType.TechnicalStep,
+	BuffType.TechnicalStep,
+	BuffType.WanderersMinuet,
 ];
 
 // seems useful: https://na.finalfantasyxiv.com/lodestone/special/fankit/icon/
