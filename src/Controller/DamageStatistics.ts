@@ -86,7 +86,8 @@ function expandThunderNode(node: ActionNode, lastNode?: ActionNode) {
 		totalNumTicks: 0,
 		numHitTicks: 0,
 		potencyWithoutPot: 0,
-		potPotency: 0
+		potPotency: 0,
+		partyBuffPotency: 0
 	};
 
 	if (lastNode) {
@@ -133,14 +134,25 @@ function expandThunderNode(node: ActionNode, lastNode?: ActionNode) {
 
 	let potencyWithoutPot = node.getPotency({
 		tincturePotencyMultiplier: 1,
-		untargetable: bossIsUntargetable
+		includePartyBuffs: false,
+		untargetable: bossIsUntargetable,
 	}).applied;
+	
 	let potencyWithPot = node.getPotency({
 		tincturePotencyMultiplier: ctl.getTincturePotencyMultiplier(),
+		includePartyBuffs: false,
 		untargetable: bossIsUntargetable
 	}).applied;
+
+	let potencyWithPartyBuffs = node.getPotency({
+		tincturePotencyMultiplier: ctl.getTincturePotencyMultiplier(),
+		includePartyBuffs: true,
+		untargetable: bossIsUntargetable
+	}).applied;
+
 	entry.potencyWithoutPot = potencyWithoutPot;
 	entry.potPotency = potencyWithPot - potencyWithoutPot;
+	entry.partyBuffPotency = potencyWithPartyBuffs - potencyWithPot;
 
 	return entry;
 }
@@ -281,6 +293,7 @@ export function calculateSelectedStats(props: {
 				tincturePotencyMultiplier: ctl.getTincturePotencyMultiplier(),
 				untargetable: bossIsUntargetable,
 				excludeDoT: node.skillName===SkillName.HighThunder && !getSkillOrDotInclude("DoT")
+				includePartyBuffs: false,
 			});
 			if (checked) {
 				selected.potency.applied += p.applied;
@@ -308,7 +321,8 @@ export function calculateDamageStats(props: {
 	let mainTable: DamageStatsMainTableEntry[] = [];
 	let mainTableSummary = {
 		totalPotencyWithoutPot: 0,
-		totalPotPotency: 0
+		totalPotPotency: 0,
+		totalPartyBuffPotency: 0,
 	};
 
 	let thunderTable: DamageStatsThunderTableEntry[] = [];
@@ -321,7 +335,8 @@ export function calculateDamageStats(props: {
 		dotCoverageTimeFraction: ctl.getDotCoverageTimeFraction(ctl.game.getDisplayTime()),
 		theoreticalMaxTicks: 0,
 		totalPotencyWithoutPot: 0,
-		totalPotPotency: 0
+		totalPotPotency: 0,
+		totalPartyBuffPotency: 0,
 	};
 
 	let skillPotencies: Map<SkillName, number> = new Map();
@@ -347,6 +362,7 @@ export function calculateDamageStats(props: {
 				tincturePotencyMultiplier: ctl.getTincturePotencyMultiplier(),
 				untargetable: bossIsUntargetable,
 				excludeDoT: node.skillName===SkillName.HighThunder && !getSkillOrDotInclude("DoT")
+				includePartyBuffs: false,
 			});
 			if (checked) {
 				totalPotency.applied += p.applied;
@@ -367,7 +383,8 @@ export function calculateDamageStats(props: {
 						totalPotencyWithoutPot: 0,
 						showPotency: node.getPotencies().length > 0,
 						potPotency: 0,
-						potCount: 0
+						potCount: 0,
+						partyBuffPotency: 0,
 					});
 					q.mainTableIndex = mainTable.length - 1;
 				}
@@ -375,12 +392,22 @@ export function calculateDamageStats(props: {
 					tincturePotencyMultiplier: 1,
 					untargetable: bossIsUntargetable,
 					excludeDoT: node.skillName===SkillName.HighThunder && !getSkillOrDotInclude("DoT")
+					includePartyBuffs: false,
 				}).applied;
+				
 				let potencyWithPot = node.getPotency({
 					tincturePotencyMultiplier: ctl.getTincturePotencyMultiplier(),
 					untargetable: bossIsUntargetable,
 					excludeDoT: node.skillName===SkillName.HighThunder && !getSkillOrDotInclude("DoT")
+					includePartyBuffs: false,
 				}).applied;
+
+				let potencyWithPartyBuffs = node.getPotency({
+					tincturePotencyMultiplier: ctl.getTincturePotencyMultiplier(),
+					untargetable: bossIsUntargetable,
+					includePartyBuffs: true,
+				}).applied;
+
 				const hit = node.hitBoss(bossIsUntargetable);
 				mainTable[q.mainTableIndex].usageCount += 1;
 				if (hit) {
@@ -388,19 +415,22 @@ export function calculateDamageStats(props: {
 				}
 				mainTable[q.mainTableIndex].totalPotencyWithoutPot += potencyWithoutPot;
 				mainTable[q.mainTableIndex].potPotency += (potencyWithPot - potencyWithoutPot);
+				mainTable[q.mainTableIndex].partyBuffPotency += (potencyWithPartyBuffs - potencyWithPot);
+
 				if (hit && node.hasBuff(ResourceType.Tincture)) {
 					mainTable[q.mainTableIndex].potCount += 1;
 				}
 
 				// also get contrib of each skill
 				let skillPotency = skillPotencies.get(node.skillName) ?? 0;
-				skillPotency += potencyWithPot;
+				skillPotency += potencyWithPartyBuffs;
 				skillPotencies.set(node.skillName, skillPotency);
 
 				// and main table total (only if checked)
 				if (checked) {
 					mainTableSummary.totalPotencyWithoutPot += potencyWithoutPot;
 					mainTableSummary.totalPotPotency += (potencyWithPot - potencyWithoutPot);
+					mainTableSummary.totalPartyBuffPotency += (potencyWithPartyBuffs - potencyWithPot);
 				}
 
 				// Thunder table
@@ -413,6 +443,7 @@ export function calculateDamageStats(props: {
 					thunderTableSummary.totalTicks += thunderTableEntry.numHitTicks;
 					thunderTableSummary.totalPotencyWithoutPot += thunderTableEntry.potencyWithoutPot;
 					thunderTableSummary.totalPotPotency += thunderTableEntry.potPotency;
+					t3TableSummary.totalPartyBuffPotency += t3TableEntry.partyBuffPotency;
 				}
 			}
 		}

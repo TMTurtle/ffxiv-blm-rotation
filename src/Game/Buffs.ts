@@ -3,18 +3,20 @@ import { BuffName, MarkerColor } from "./Common";
 export class BuffInfo {
 	readonly name: BuffName;
 	readonly duration: number;
+	readonly potencyFactor: number;
 	readonly color: MarkerColor;
 
-	constructor(name: BuffName, duration: number, color: MarkerColor) {
+	constructor(name: BuffName, duration: number, potencyFactor: number, color: MarkerColor) {
 		this.name = name;
 		this.duration = duration;
+		this.potencyFactor = potencyFactor;
 		this.color = color;
 	}
 }
 
 const buffInfos = [
-	new BuffInfo(BuffName.TechnicalStep, 15, MarkerColor.Red),
-	new BuffInfo(BuffName.Mug, 20, MarkerColor.Yellow)
+	new BuffInfo(BuffName.TechnicalStep, 15, 1.05, MarkerColor.Red),
+	new BuffInfo(BuffName.Mug, 20, 1.05, MarkerColor.Yellow)
 ];
 
 const buffInfosMap: Map<BuffName, BuffInfo> = new Map();
