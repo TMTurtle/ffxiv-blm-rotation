@@ -1,13 +1,17 @@
-import { BuffName, MarkerColor } from "./Common";
+import { ContentNode } from "../Components/Common";
+import { localize } from "../Components/Localization";
+import { BuffType, MarkerColor } from "./Common";
 
 export class BuffInfo {
-	readonly name: BuffName;
+	readonly name: BuffType;
+	readonly shortName: ContentNode;
 	readonly duration: number;
 	readonly potencyFactor: number;
 	readonly color: MarkerColor;
 
-	constructor(name: BuffName, duration: number, potencyFactor: number, color: MarkerColor) {
+	constructor(name: BuffType, shortName: ContentNode, duration: number, potencyFactor: number, color: MarkerColor) {
 		this.name = name;
+		this.shortName = shortName;
 		this.duration = duration;
 		this.potencyFactor = potencyFactor;
 		this.color = color;
@@ -15,20 +19,20 @@ export class BuffInfo {
 }
 
 const buffInfos = [
-	new BuffInfo(BuffName.TechnicalStep, 15, 1.05, MarkerColor.Red),
-	new BuffInfo(BuffName.Mug, 20, 1.05, MarkerColor.Yellow)
+	new BuffInfo(BuffType.TechnicalStep, localize({en: "tech", zh: "todo"}), 15, 1.05, MarkerColor.Red),
+	new BuffInfo(BuffType.Mug, localize({en: "mug", zh: "todo"}), 20, 1.05, MarkerColor.Yellow)
 ];
 
-const buffInfosMap: Map<BuffName, BuffInfo> = new Map();
+const buffInfosMap: Map<BuffType, BuffInfo> = new Map();
 buffInfos.forEach(info=>{
 	buffInfosMap.set(info.name, info);
 });
 
 export class Buff {
-	readonly name: BuffName;
+	readonly name: BuffType;
 	info: BuffInfo;
 
-	constructor(name: BuffName) {
+	constructor(name: BuffType) {
 		this.name = name;
 		let info = buffInfosMap.get(name);
 		if (!info) {

@@ -1,15 +1,15 @@
-import {BuffName} from "../Game/Common";
+import {BuffType} from "../Game/Common";
 import {updateTimelineView} from "./Timeline";
 
 export let displayedSkills = [
-    BuffName.TechnicalStep,
-    BuffName.Mug,
+    BuffType.TechnicalStep,
+    BuffType.Mug,
 ];
 
 // seems useful: https://na.finalfantasyxiv.com/lodestone/special/fankit/icon/
 export const buffIcons = new Map();
-buffIcons.set(BuffName.TechnicalStep, require("./Asset/OtherJobs/technical_step.png"));
-buffIcons.set(BuffName.Mug, require("./Asset/OtherJobs/mug.png"));
+buffIcons.set(BuffType.TechnicalStep, require("./Asset/OtherJobs/technical_step.png"));
+buffIcons.set(BuffType.Mug, require("./Asset/OtherJobs/mug.png"));
 
 export const buffIconImages = new Map();
 buffIcons.forEach((path, skillName)=>{

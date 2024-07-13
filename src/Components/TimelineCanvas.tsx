@@ -12,7 +12,7 @@ import {
 	WarningMarkElem
 } from "../Controller/Timeline";
 import {StaticFn} from "./Common";
-import {BuffName, ResourceType, SkillName, WarningType} from "../Game/Common";
+import {BuffType, ResourceType, SkillName, WarningType} from "../Game/Common";
 // @ts-ignore
 import {skillIconImages} from "./Skills";
 // @ts-ignore
@@ -318,11 +318,13 @@ function drawDamageMarks(
 		if (untargetable) {
 			info = (0).toFixed(2) + " (" + sourceStr + ")";
 		} else {
-			const withoutBuffs = dm.potency.getAmount({tincturePotencyMultiplier: g_renderingProps.tincturePotencyMultiplier, includePartyBuffs: false});
-			const withBuffs = dm.potency.getAmount({tincturePotencyMultiplier: g_renderingProps.tincturePotencyMultiplier, includePartyBuffs: true});
-			info = withBuffs.toFixed(2) + " (" + dm.sourceDesc + ")";
+			const potency = dm.potency.getAmount({tincturePotencyMultiplier: g_renderingProps.tincturePotencyMultiplier, includePartyBuffs: true});
+			info = potency.toFixed(2) + " (" + dm.sourceDesc + ")";
 			if (pot) info += " (" + localize({en: "pot", zh: "爆发药"}) + ")";
-			if (withoutBuffs !== withBuffs) info += " (" + localize({en: "party", zh: "TODO"}) + ")";
+
+			dm.potency.getPartyBuffDescriptions().forEach(desc => {
+				info += " (" + desc + ")";
+			});
 		}
 
 		testInteraction(
@@ -371,6 +373,7 @@ function drawSkills(
 	let snapshots: number[] = [];
 	let llCovers: Rect[] = [];
 	let potCovers: Rect[] = [];
+	let buffCovers: Rect[] = [];
 	let skillIcons: {elem: SkillElem, x: number, y: number}[] = []; // tmp
 	let skillsTopY = timelineOriginY + 14;
 	elems.forEach(e=>{
@@ -390,15 +393,20 @@ function drawSkills(
 			let recastWidth = StaticFn.positionFromTimeAndScale(skill.recastDuration, scale);
 			gcdBars.push({x: x+c_barsOffset, y: y + 14, w: recastWidth-c_barsOffset, h: 14});
 		}
-		// ll cover
-		if (skill.node.hasBuff(ResourceType.LeyLines)) {
-			llCovers.push({x: x, y: y + 28, w: 28, h: 4});
-			if (skill.node.hasBuff(ResourceType.Tincture)) {
-				potCovers.push({x: x, y: y + 32, w: 28, h: 4});
-			}
-		} else if (skill.node.hasBuff(ResourceType.Tincture)) {
-			potCovers.push({x: x, y: y + 28, w: 28, h: 4});
+
+		let nodeCoverCount = 0;
+		if (skill.node.hasBuff(BuffType.LeyLines))
+			nodeCoverCount += buildCover(nodeCoverCount, llCovers);
+		if (skill.node.hasBuff(BuffType.Tincture))
+			nodeCoverCount += buildCover(nodeCoverCount, potCovers);
+		if (skill.node.hasPartyBuff())
+			buildCover(nodeCoverCount, buffCovers);
+
+		function buildCover(existingCovers: number, collection: Rect[]) {
+			collection.push({x: x, y: y + 28 + existingCovers*4, w: 28, h: 4});
+			return 1;
 		}
+		
 		// pot cover
 		// skill icon
 		let img = skillIconImages.get(skill.skillName);
@@ -460,6 +468,15 @@ function drawSkills(
 	});
 	g_ctx.fill();
 
+	// buffCovers
+	g_ctx.fillStyle = g_colors.timeline.buffCover;
+	g_ctx.beginPath();
+	buffCovers.forEach(r=>{
+		g_ctx.rect(r.x, r.y, r.w, r.h);
+		if (interactive) testInteraction(r, undefined, onClickTimelineBackground);
+	});
+	g_ctx.fill();
+
 	// icons
 	g_ctx.beginPath();
 	skillIcons.forEach(icon=>{
@@ -467,24 +484,22 @@ function drawSkills(
 		let node = icon.elem.node;
 		// 1. description
 		let description = localizeSkillName(icon.elem.skillName) + "@" + (icon.elem.displayTime).toFixed(2);
-		if (node.hasBuff(ResourceType.LeyLines)) description += localize({en: " (LL)", zh: " (黑魔纹)"});
-		if (node.hasBuff(ResourceType.Tincture)) description += localize({en: " (pot)", zh: "(爆发药)"});
+		if (node.hasBuff(BuffType.LeyLines)) description += localize({en: " (LL)", zh: " (黑魔纹)"});
+		if (node.hasBuff(BuffType.Tincture)) description += localize({en: " (pot)", zh: "(爆发药)"});
 
-		const withoutBuffs = node.getPotency({
-			tincturePotencyMultiplier: g_renderingProps.tincturePotencyMultiplier, 
-			includePartyBuffs: false, 
-			untargetable: bossIsUntargetable}).applied;
-		const withBuffs = node.getPotency({
+		node.getPartyBuffDescriptions().forEach(buffDesc => {
+			description += " (" + buffDesc + ")"
+		});
+
+		const potency = node.getPotency({
 			tincturePotencyMultiplier: g_renderingProps.tincturePotencyMultiplier, 
 			includePartyBuffs: true, 
 			untargetable: bossIsUntargetable}).applied;
 
-		if (withoutBuffs !== withBuffs) description += localize({en: " (party)", zh: "(TODO)"});
-
 		let lines = [description];
 		// 2. potency
 		if (node.getPotencies().length > 0) {
-			lines.push(localize({en: "potency: ", zh: "威力："}) + withBuffs.toFixed(2));
+			lines.push(localize({en: "potency: ", zh: "威力："}) + potency.toFixed(2));
 		}
 		// 3. duration
 		let lockDuration = 0;
