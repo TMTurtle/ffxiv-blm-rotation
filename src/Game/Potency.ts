@@ -75,7 +75,7 @@ export function getPotencyModifiersFromResourceState(resources: ResourceState, a
 		return marker.time <= adjustedTime && (marker.time + marker.duration) >= adjustedTime;
 	}).forEach(marker => {
 		const buff = new Buff(marker.description as BuffType);
-		mods.push({source: PotencyModifierType.PARTY, buffType: buff.name, factor: buff.info.potencyFactor})
+		mods.push({source: PotencyModifierType.PARTY, buffType: buff.name, factor: buff.info.calculatePotencyModifier()})
 	})
 	
 	return mods;
