@@ -292,8 +292,8 @@ export function calculateSelectedStats(props: {
 			let p = node.getPotency({
 				tincturePotencyMultiplier: ctl.getTincturePotencyMultiplier(),
 				untargetable: bossIsUntargetable,
-				excludeDoT: node.skillName===SkillName.HighThunder && !getSkillOrDotInclude("DoT")
 				includePartyBuffs: false,
+				excludeDoT: node.skillName===SkillName.HighThunder && !getSkillOrDotInclude("DoT")
 			});
 			if (checked) {
 				selected.potency.applied += p.applied;
@@ -361,8 +361,8 @@ export function calculateDamageStats(props: {
 			let p = node.getPotency({
 				tincturePotencyMultiplier: ctl.getTincturePotencyMultiplier(),
 				untargetable: bossIsUntargetable,
-				excludeDoT: node.skillName===SkillName.HighThunder && !getSkillOrDotInclude("DoT")
 				includePartyBuffs: false,
+				excludeDoT: node.skillName===SkillName.HighThunder && !getSkillOrDotInclude("DoT")
 			});
 			if (checked) {
 				totalPotency.applied += p.applied;
@@ -391,15 +391,15 @@ export function calculateDamageStats(props: {
 				let potencyWithoutPot = node.getPotency({
 					tincturePotencyMultiplier: 1,
 					untargetable: bossIsUntargetable,
-					excludeDoT: node.skillName===SkillName.HighThunder && !getSkillOrDotInclude("DoT")
 					includePartyBuffs: false,
+					excludeDoT: node.skillName===SkillName.HighThunder && !getSkillOrDotInclude("DoT")
 				}).applied;
 				
 				let potencyWithPot = node.getPotency({
 					tincturePotencyMultiplier: ctl.getTincturePotencyMultiplier(),
 					untargetable: bossIsUntargetable,
-					excludeDoT: node.skillName===SkillName.HighThunder && !getSkillOrDotInclude("DoT")
 					includePartyBuffs: false,
+					excludeDoT: node.skillName===SkillName.HighThunder && !getSkillOrDotInclude("DoT")
 				}).applied;
 
 				let potencyWithPartyBuffs = node.getPotency({
@@ -443,7 +443,7 @@ export function calculateDamageStats(props: {
 					thunderTableSummary.totalTicks += thunderTableEntry.numHitTicks;
 					thunderTableSummary.totalPotencyWithoutPot += thunderTableEntry.potencyWithoutPot;
 					thunderTableSummary.totalPotPotency += thunderTableEntry.potPotency;
-					t3TableSummary.totalPartyBuffPotency += t3TableEntry.partyBuffPotency;
+					thunderTableSummary.totalPartyBuffPotency += thunderTableEntry.partyBuffPotency;
 				}
 			}
 		}

@@ -626,8 +626,8 @@ export class DamageStatistics extends React.Component {
 								zh: "(爆发药 +" + this.data.tinctureBuffPercentage + "%)"
 							})}</span> : undefined}
 
-						{this.data.t3TableSummary.totalPartyBuffPotency > 0 ? 
-							<span style={{color: colors.accent}}> +{this.data.t3TableSummary.totalPartyBuffPotency.toFixed(2)}({localize({en: "party"})})</span> : undefined}
+						{this.data.thunderTableSummary.totalPartyBuffPotency > 0 ? 
+							<span style={{color: colors.accent}}> +{this.data.thunderTableSummary.totalPartyBuffPotency.toFixed(2)}({localize({en: "party"})})</span> : undefined}
 					</div>
 				</div>
 			</div>

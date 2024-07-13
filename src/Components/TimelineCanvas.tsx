@@ -186,7 +186,16 @@ function drawMarkers(
 			};
 			if (m.duration > 0) {
 				let markerWidth = StaticFn.positionFromTimeAndScale(m.duration, scale);
-				if (m.showText) {
+				if (m.markerType === MarkerType.Buff) {
+					let img = buffIconImages.get(m.description);
+					if (img) g_ctx.drawImage(img, left, top, c_trackHeight, c_trackHeight);
+					
+					g_ctx.fillStyle = m.color + g_colors.timeline.markerAlpha;
+					g_ctx.fillRect(left + c_trackHeight, top, markerWidth, c_trackHeight);
+					g_ctx.fillStyle = g_colors.emphasis;
+					g_ctx.fillText(m.description, left + (c_trackHeight * 1.5), top + 10);
+				}
+				else if (m.showText) {
 					g_ctx.fillStyle = m.color + g_colors.timeline.markerAlpha;
 					g_ctx.fillRect(left, top, markerWidth, c_trackHeight);
 					g_ctx.fillStyle = g_colors.emphasis;
@@ -218,44 +227,6 @@ function drawMarkers(
 					["[" + m.time + "] " + m.description],
 					onClick);
 			}
-		}
-	});
-}
-
-function drawBuffs(	countdown: number,
-	scale: number,
-	buffTracksBottomY: number, // bottom Y of track 0
-	timelineOrigin: number,
-	buffBins: Map<number, MarkerElem[]>,
-) {
-    buffBins.forEach((elems, track)=>{
-		let top = buffTracksBottomY - (track + 1) * c_trackHeight;
-		for (let i = 0; i < elems.length; i++) {
-			let m = elems[i];
-
-			let left = timelineOrigin + StaticFn.positionFromTimeAndScale(m.time + countdown, scale);
-			let onClick = ()=>{
-				let success = controller.timeline.deleteMarker(m);
-				console.assert(success);
-				controller.updateStats();
-				setEditingMarkerValues(m);
-			};
-			
-			let markerWidth = StaticFn.positionFromTimeAndScale(m.duration , scale);
-			
-			let img = buffIconImages.get(m.description);
-			if (img) g_ctx.drawImage(img, left, top, c_trackHeight, c_trackHeight);
-			
-			g_ctx.fillStyle = m.color + g_colors.timeline.markerAlpha;
-			g_ctx.fillRect(left + c_trackHeight, top, markerWidth, c_trackHeight);
-			g_ctx.fillStyle = g_colors.emphasis;
-			g_ctx.fillText(m.description, left + (c_trackHeight * 1.5), top + 10);
-			
-			let timeStr = m.time + " - " + parseFloat((m.time + m.duration).toFixed(3));
-			testInteraction(
-				{x: left, y: top, w: Math.max(markerWidth, c_trackHeight), h: c_trackHeight},
-				["[" + timeStr + "] " + m.description],
-				onClick);
 		}
 	});
 }
@@ -349,7 +320,7 @@ function drawDamageMarks(
 		} else {
 			const withoutBuffs = dm.potency.getAmount({tincturePotencyMultiplier: g_renderingProps.tincturePotencyMultiplier, includePartyBuffs: false});
 			const withBuffs = dm.potency.getAmount({tincturePotencyMultiplier: g_renderingProps.tincturePotencyMultiplier, includePartyBuffs: true});
-			info = withBuffs.toFixed(2) + " (" + dm.source + ")";
+			info = withBuffs.toFixed(2) + " (" + dm.sourceDesc + ")";
 			if (pot) info += " (" + localize({en: "pot", zh: "爆发药"}) + ")";
 			if (withoutBuffs !== withBuffs) info += " (" + localize({en: "party", zh: "TODO"}) + ")";
 		}
@@ -629,9 +600,7 @@ function drawMarkerTracks(originX: number, originY: number) : number {
 
 	// make trackbins
 	let trackBins = new Map<number, MarkerElem[]>();
-
 	g_renderingProps.allMarkers
-		.filter(marker => marker.markerType !== MarkerType.Buff)
 		.forEach(marker => {
 			let trackBin = trackBins.get(marker.track);
 			if (trackBin === undefined) trackBin = [];
@@ -661,35 +630,6 @@ function drawMarkerTracks(originX: number, originY: number) : number {
 
 	return numTracks * c_trackHeight;
 
-}
-
-function drawBuffTracks(originX: number, originY: number) {
-	let buffBins = new Map<number, MarkerElem[]>();
-	g_renderingProps.buffMarkers.forEach(marker => {
-		let buffBin = buffBins.get(marker.track);
-		if (buffBin === undefined) buffBin = [];
-		buffBin.push(marker);
-		buffBins.set(marker.track, buffBin);
-	});
-
-    // tracks background
-    g_ctx.beginPath();
-    let numTracks = 0;
-    for (let k of buffBins.keys()) {
-        numTracks = Math.max(numTracks, k + 1);
-    }
-    let buffTracksBottomY = originY + numTracks * c_trackHeight;
-    g_ctx.fillStyle = g_colors.timeline.tracks;
-    for (let i = 0; i < numTracks; i += 2) {
-        let top = buffTracksBottomY - (i + 1) * c_trackHeight;
-        g_ctx.rect(0, top, g_visibleWidth, c_trackHeight);
-    }
-    g_ctx.fill();
-
-    // timeline markers
-    drawBuffs(g_renderingProps.countdown, g_renderingProps.scale, buffTracksBottomY, originX, buffBins);
-
-    return numTracks * c_trackHeight;
 }
 
 function drawTimelines(originX:  number, originY: number) : number {
@@ -852,8 +792,6 @@ function drawEverything() {
 	currentHeight += drawRuler(timelineOrigin);
 
 	currentHeight += drawMarkerTracks(timelineOrigin, currentHeight);
-
-    currentHeight += drawBuffTracks(timelineOrigin, currentHeight);
 
 	currentHeight += drawTimelines(timelineOrigin, currentHeight);
 
