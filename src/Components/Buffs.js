@@ -1,26 +1,6 @@
 import {BuffType} from "../Game/Common";
 import {updateTimelineView} from "./Timeline";
 
-export let displayedSkills = [
-	BuffType.ArcaneCircle,
-	BuffType.ArmysPaeon,
-	BuffType.BattleLitany,
-	BuffType.BattleVoice,
-	BuffType.Brotherhood,
-	BuffType.Card_TheBalance,
-	BuffType.Card_TheSpear,
-	BuffType.ChainStratagem,
-	BuffType.Devilment,
-	BuffType.Embolden,
-	BuffType.MagesBallad,
-	BuffType.Mug,
-	BuffType.RadiantFinale1,
-	BuffType.RadiantFinale2,
-	BuffType.RadiantFinale3,
-	BuffType.TechnicalStep,
-	BuffType.WanderersMinuet,
-];
-
 // seems useful: https://na.finalfantasyxiv.com/lodestone/special/fankit/icon/
 export const buffIcons = new Map();
 buffIcons.set(BuffType.ArcaneCircle, require("./Asset/OtherJobs/arcane_circle.png"));
@@ -32,12 +12,14 @@ buffIcons.set(BuffType.Card_TheBalance, require("./Asset/OtherJobs/the_balance.p
 buffIcons.set(BuffType.Card_TheSpear, require("./Asset/OtherJobs/the_spear.png"));
 buffIcons.set(BuffType.ChainStratagem, require("./Asset/OtherJobs/chain_stratagem.png"));
 buffIcons.set(BuffType.Devilment, require("./Asset/OtherJobs/devilment.png"));
+buffIcons.set(BuffType.Divination, require("./Asset/OtherJobs/divination.png"));
 buffIcons.set(BuffType.Embolden, require("./Asset/OtherJobs/embolden.png"));
 buffIcons.set(BuffType.MagesBallad, require("./Asset/OtherJobs/mage's_ballad.png"));
 buffIcons.set(BuffType.Mug, require("./Asset/OtherJobs/mug.png"));
 buffIcons.set(BuffType.RadiantFinale1, require("./Asset/OtherJobs/radiant_finale.png"));
 buffIcons.set(BuffType.RadiantFinale2, require("./Asset/OtherJobs/radiant_finale.png"));
 buffIcons.set(BuffType.RadiantFinale3, require("./Asset/OtherJobs/radiant_finale.png"));
+buffIcons.set(BuffType.SearingLight, require("./Asset/OtherJobs/searing_light.png"));
 buffIcons.set(BuffType.StandardStep, require("./Asset/OtherJobs/standard_step.png"));
 buffIcons.set(BuffType.StarryMuse, require("./Asset/OtherJobs/temp_starry_muse.png"));		// Asset not available in Fan Kit
 buffIcons.set(BuffType.TechnicalStep, require("./Asset/OtherJobs/technical_step.png"));
