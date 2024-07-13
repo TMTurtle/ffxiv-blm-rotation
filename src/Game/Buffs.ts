@@ -17,58 +17,18 @@ export class BuffInfo {
 		this.critBonus = critBonus;
 		this.dhBonus = dhBonus;
 	}
-
-	calculatePotencyModifier() {
-		const base = this.#calculatePotencyModifier(controller.gameConfig.criticalHit, controller.gameConfig.directHit);
-		const buffed = this.#calculatePotencyModifier(controller.gameConfig.criticalHit, controller.gameConfig.directHit, this.damageBonus, this.critBonus, this.dhBonus);
-
-		return buffed / base;
-	}
-
-	#calculatePotencyModifier(crit: number, dh: number, damageBonus?: number, critBonus?: number, dhBonus?: number) {
-		let potencyModifier = 1;
-		if (damageBonus) potencyModifier *= damageBonus;
-				
-		let critRate = this.#criticalHitRate(crit)
-		if (critBonus) critRate += critBonus;
-		let dhRate = this.#directHitRate(dh);
-		if (dhBonus) dhRate += dhBonus;
-
-		const critDHRate = critRate * dhRate;
-		const normalRate = 1 - critRate - dhRate + critDHRate;
-		
-		const critDamage = potencyModifier * (1000 * this.#criticalHitStrength(crit)) / 1000;
-		const dhDamage = potencyModifier * 1250 / 1000;
-		const critDHDamage = critDamage * 1250 / 1000;
-
-		potencyModifier = potencyModifier * normalRate + critDamage * (critRate-critDHRate) + dhDamage * (dhRate-critDHRate) + critDHDamage * critDHRate; 
-
-		return potencyModifier;
-	}
-
-	#criticalHitRate(crit: number) {
-		return (Math.floor(200 * (crit-420) / 2780) + 50) * 0.001;
-	}
-
-	#criticalHitStrength(crit: number) {
-		return (Math.floor(200 * (crit-420) / 2780) + 1400) * 0.001;
-	}
-
-	#directHitRate(dh: number) {
-		return Math.floor(550 * (dh - 420) / 2780) * 0.001;
-	}
 }
 
 const buffInfos = [
 	new BuffInfo(BuffType.ArcaneCircle, MarkerColor.Pink, 20, 1.03, 0, 0),
-	new BuffInfo(BuffType.ArmysPaeon, MarkerColor.Yellow, 45, 0, 0, 0.03),
-	new BuffInfo(BuffType.BattleLitany, MarkerColor.Blue, 20, 0, 0.10, 0),
-	new BuffInfo(BuffType.BattleVoice, MarkerColor.Orange, 20, 0, 0, 0.20),
+	new BuffInfo(BuffType.ArmysPaeon, MarkerColor.Yellow, 45, 1, 0, 0.03),
+	new BuffInfo(BuffType.BattleLitany, MarkerColor.Blue, 20, 1, 0.10, 0),
+	new BuffInfo(BuffType.BattleVoice, MarkerColor.Orange, 20, 1, 0, 0.20),
 	new BuffInfo(BuffType.Brotherhood, MarkerColor.Orange, 20, 1.05, 0, 0),
 	new BuffInfo(BuffType.Card_TheBalance, MarkerColor.Red, 15, 1.03, 0, 0),
 	new BuffInfo(BuffType.Card_TheSpear, MarkerColor.Blue, 15, 1.06, 0, 0),
-	new BuffInfo(BuffType.ChainStratagem, MarkerColor.Grey, 20, 0, 0.10, 0),
-	new BuffInfo(BuffType.Devilment, MarkerColor.Green, 20, 0, 0.20, 0.20),
+	new BuffInfo(BuffType.ChainStratagem, MarkerColor.Grey, 20, 1, 0.10, 0),
+	new BuffInfo(BuffType.Devilment, MarkerColor.Green, 20, 1, 0.20, 0.20),
 	new BuffInfo(BuffType.Embolden, MarkerColor.Grey, 20, 1.05, 0, 0),
 	new BuffInfo(BuffType.MagesBallad, MarkerColor.Purple, 45, 1.01, 0, 0),
 	new BuffInfo(BuffType.Mug, MarkerColor.Yellow, 20, 1.05, 0, 0),
@@ -78,7 +38,7 @@ const buffInfos = [
 	new BuffInfo(BuffType.StandardStep, MarkerColor.Yellow, 30, 1.05, 0, 0),
 	new BuffInfo(BuffType.StarryMuse, MarkerColor.Purple, 20, 1.05, 0, 0),
 	new BuffInfo(BuffType.TechnicalStep, MarkerColor.Blue, 20, 1.05, 0, 0),
-	new BuffInfo(BuffType.WanderersMinuet, MarkerColor.Green, 45, 0, 0.02, 0),
+	new BuffInfo(BuffType.WanderersMinuet, MarkerColor.Green, 45, 1, 0.02, 0),
 ];
 
 const buffInfosMap: Map<BuffType, BuffInfo> = new Map();
