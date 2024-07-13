@@ -166,7 +166,7 @@ function PotencyDisplay(props: {
 	}
 	props.calc.forEach(m=>{
 		if (m.damageFactor !== 1 && m.source !== PotencyModifierType.PARTY) {
-			if (m.damageFactor) potency *= m.damageFactor;
+			potency *= m.damageFactor;
 			potencyExplanation += " × " + m.damageFactor + "(" + buffName(m.source) + ")"
 		}
 	});
